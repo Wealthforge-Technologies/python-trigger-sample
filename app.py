@@ -61,9 +61,20 @@ def _get_result(test_run):
 
     if result_resp.ok:
         return result_resp.json().get("data")
-
-    return None
-
+    elif result_resp.status_code == 404:
+        print('Unable to find test run result at %s' % result_url)
+        return { "result": "404" }
+    else:
+        print(
+            "Result response not 200 (OK)... Check Runscope for more information: "
+            "https://www.runscope.com/radar/{bucket_key}/{test_id}/history/{test_run_id}"
+            .format(**opts)
+        )
+        print("\n\nStatus Code: %s" % result_resp.status_code)
+        print("\nResponse: {}".format(result_resp.text))
+        
+        # Currently unrecoverable, TODO: revisit if false positive presist
+        exit(1)
 
 if __name__ == '__main__':
     main()
